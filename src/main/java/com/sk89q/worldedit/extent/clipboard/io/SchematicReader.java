@@ -194,9 +194,9 @@ public class SchematicReader implements ClipboardReader {
         for (int index = 0; index < blockId.length; index++) {
             if ((index >> 1) < addId2.length) { // No corresponding AddBlocks2 index
                 if ((index & 1) == 0) {
-                    blocks[index] = (short) (((addId2[index >> 1] & 0x0F) << 8) + (blocks[index] & 0xFFF));
+                    blocks[index] = (short) (((addId2[index >> 1] & 0x0F) << 12) + (blocks[index] & 0xFFF));
                 } else {
-                    blocks[index] = (short) (((addId2[index >> 1] & 0xF0) << 4) + (blocks[index] & 0xFFF));
+                    blocks[index] = (short) (((addId2[index >> 1] & 0xF0) << 8) + (blocks[index] & 0xFFF));
                 }
             }
         }
