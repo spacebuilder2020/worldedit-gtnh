@@ -329,7 +329,7 @@ public class SchematicReader implements ClipboardReader {
                                         itemMap.put(
                                             idPtr[0],
                                             new IntTag(
-                                                newId + (id_data & 0xff000000) != 0 ? (id_data & 0xFFFF0000) : 0));
+                                                newId + ((id_data & 0xff000000) != 0 ? (id_data & 0xFFFF0000) : 0)));
                                     } else {
                                         itemMap.put(idPtr[0], new ShortTag((short) newId));
                                     }
