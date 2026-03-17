@@ -168,7 +168,7 @@ public class SchematicReader implements ClipboardReader {
         }
 
         if (schematic.containsKey("ItemMappingE")) {
-            Map<String, Tag> mapping = requireTag(schematic, "ItemMapping", CompoundTag.class).getValue();
+            Map<String, Tag> mapping = requireTag(schematic, "ItemMappingE", CompoundTag.class).getValue();
 
             for (String key : mapping.keySet()) {
                 int sourceId = requireTag(mapping, key, IntTag.class).getValue();
