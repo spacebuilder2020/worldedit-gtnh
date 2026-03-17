@@ -317,13 +317,19 @@ public class SchematicReader implements ClipboardReader {
                                         .get(idPtr[0]) instanceof IntTag) {
                                         id_data = nbtData.getInt(idPtr[0]);
                                         id = id_data;
+                                        if ((id_data & 0xff000000) != 0) {
+                                            id = id & 0x0000ffff;
+                                        }
                                     } else {
                                         id = Short.toUnsignedInt(nbtData.getShort(idPtr[0]));
                                     }
                                     HashMap<String, Tag> itemMap = new HashMap<>(nbtData.getValue());
                                     int newId = itemConversionMap.getOrDefault(id, id);
                                     if (id_data != null) {
-                                        itemMap.put(idPtr[0], new IntTag(newId));
+                                        itemMap.put(
+                                            idPtr[0],
+                                            new IntTag(
+                                                newId + (id_data & 0xff000000) != 0 ? (id_data & 0xFFFF0000) : 0));
                                     } else {
                                         itemMap.put(idPtr[0], new ShortTag((short) newId));
                                     }

@@ -211,6 +211,10 @@ public class SchematicWriter implements ClipboardWriter {
                                 .get(idPtr[0]) instanceof IntTag) {
                                 id = nbtData.getInt(idPtr[0]);
 
+                                // GT edge case id+data, to differentiate from endless id 3 byte ids
+                                if ((id & 0xff000000) != 0) {
+                                    id = id & 0x0000ffff;
+                                }
                             } else {
                                 id = Short.toUnsignedInt(nbtData.getShort(idPtr[0]));
                             }
