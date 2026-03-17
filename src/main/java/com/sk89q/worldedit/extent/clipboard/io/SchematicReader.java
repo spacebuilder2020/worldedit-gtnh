@@ -187,6 +187,7 @@ public class SchematicReader implements ClipboardReader {
 
         byte[] addId = new byte[0];
         byte[] addId2 = new byte[0];
+        byte[] addId3 = new byte[0];
         int[] blocks = new int[blockId.length]; // Have to later combine IDs
 
         // We support 4096 block IDs using the same method as vanilla Minecraft, where
@@ -197,6 +198,10 @@ public class SchematicReader implements ClipboardReader {
 
         if (schematic.containsKey("AddBlocks2")) {
             addId2 = requireTag(schematic, "AddBlocks2", ByteArrayTag.class).getValue();
+        }
+
+        if (schematic.containsKey("AddBlocks3")) {
+            addId3 = requireTag(schematic, "AddBlocks3", ByteArrayTag.class).getValue();
         }
         // Combine the AddBlocks data with the first 8-bit block ID
         for (int index = 0; index < blockId.length; index++) {
@@ -218,6 +223,12 @@ public class SchematicReader implements ClipboardReader {
                 } else {
                     blocks[index] = (short) (((addId2[index >> 1] & 0xF0) << 8) + (blocks[index] & 0xFFF));
                 }
+            }
+        }
+
+        if (addId3.length == blockId.length) {
+            for (int index = 0; index < blockId.length; index++) {
+                blocks[index] = (addId3[index] << 16) + (blocks[index] & 0xFFFF);
             }
         }
 

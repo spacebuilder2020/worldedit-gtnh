@@ -114,6 +114,7 @@ public class SchematicWriter implements ClipboardWriter {
         byte[] blocks = new byte[width * height * length];
         byte[] addBlocks = null;
         byte[] addBlocks2 = null;
+        byte[] addBlocks3 = null;
         byte[] blockData = new byte[width * height * length];
         byte[] addData = null;
         List<Tag> tileEntities = new ArrayList<Tag>();
@@ -126,7 +127,7 @@ public class SchematicWriter implements ClipboardWriter {
 
             int index = y * width * length + z * width + x;
             BaseBlock block = clipboard.getBlock(point);
-            boolean endlessId = block.getId() > 65535;
+            boolean endlessId = false;
             // Save 4096 IDs in an AddBlocks section
             if (block.getType() > 255) {
                 if (addBlocks == null) { // Lazily create section
@@ -146,6 +147,15 @@ public class SchematicWriter implements ClipboardWriter {
                 addBlocks2[index
                     >> 1] = (byte) (((index & 1) == 0) ? addBlocks2[index >> 1] & 0xF0 | (block.getType() >> 12) & 0xF
                         : addBlocks2[index >> 1] & 0xF | ((block.getType() >> 12) & 0xF) << 4);
+            }
+
+            if (block.getType() > 65535) {
+                endlessId = true;
+                if (addBlocks3 == null) {
+                    addBlocks3 = new byte[blocks.length];
+                }
+
+                addBlocks3[index] = (byte) (block.getType() >> 16);
             }
 
             (endlessId ? blockMappingEndless : blockMapping).put(
@@ -290,6 +300,10 @@ public class SchematicWriter implements ClipboardWriter {
 
         if (addBlocks2 != null) {
             schematic.put("AddBlocks2", new ByteArrayTag(addBlocks2));
+        }
+
+        if (addBlocks3 != null) {
+            schematic.put("AddBlocks3", new ByteArrayTag(addBlocks2));
         }
 
         if (addData != null) {
