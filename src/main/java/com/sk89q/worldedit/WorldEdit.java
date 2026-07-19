@@ -66,6 +66,8 @@ import com.sk89q.worldedit.util.io.file.FileSelectionAbortedException;
 import com.sk89q.worldedit.util.io.file.FilenameException;
 import com.sk89q.worldedit.util.io.file.FilenameResolutionException;
 import com.sk89q.worldedit.util.io.file.InvalidFilenameException;
+import com.sk89q.worldedit.util.lighting.DirectLightingScheduler;
+import com.sk89q.worldedit.util.lighting.LightingScheduler;
 import com.sk89q.worldedit.util.logging.WorldEditPrefixHandler;
 import com.sk89q.worldedit.world.registry.BundledBlockData;
 
@@ -97,6 +99,7 @@ public class WorldEdit {
     private final PlatformManager platformManager = new PlatformManager(this);
     private final EditSessionFactory editSessionFactory = new EditSessionFactory.EditSessionFactoryImpl(eventBus);
     private final SessionManager sessions = new SessionManager(this);
+    private LightingScheduler lightingScheduler = new DirectLightingScheduler();
 
     private final BlockFactory blockFactory = new BlockFactory(this);
     private final ItemFactory itemFactory = new ItemFactory(this);
@@ -197,6 +200,24 @@ public class WorldEdit {
      */
     public SessionManager getSessionManager() {
         return sessions;
+    }
+
+    /**
+     * Get the lighting scheduler.
+     *
+     * @return the lighting scheduler
+     */
+    public LightingScheduler getLightingScheduler() {
+        return lightingScheduler;
+    }
+
+    /**
+     * Set the lighting scheduler.
+     *
+     * @param lightingScheduler the scheduler to use
+     */
+    public void setLightingScheduler(LightingScheduler lightingScheduler) {
+        this.lightingScheduler = checkNotNull(lightingScheduler);
     }
 
     /**

@@ -158,6 +158,7 @@ public final class CommandManager {
             .group("worldedit", "we")
             .describeAs("WorldEdit commands")
             .registerMethods(new WorldEditCommands(worldEdit))
+            .registerMethods(new com.sk89q.worldedit.forge.command.ForgeRotationCommands(worldEdit))
             .parent()
             .group("schematic", "schem", "/schematic", "/schem")
             .describeAs("Schematic commands for saving/loading areas")

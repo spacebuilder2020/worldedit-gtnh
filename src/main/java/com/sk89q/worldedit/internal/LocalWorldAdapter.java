@@ -103,6 +103,26 @@ public class LocalWorldAdapter extends LocalWorld {
     }
 
     @Override
+    public int getEmittedLightLevel(Vector position) {
+        return world.getEmittedLightLevel(position);
+    }
+
+    @Override
+    public int getSkyLightLevel(Vector position) {
+        return world.getSkyLightLevel(position);
+    }
+
+    @Override
+    public void setEmittedLightLevel(Vector position, int level) {
+        world.setEmittedLightLevel(position, level);
+    }
+
+    @Override
+    public void setSkyLightLevel(Vector position, int level) {
+        world.setSkyLightLevel(position, level);
+    }
+
+    @Override
     public boolean clearContainerBlockContents(Vector position) {
         return world.clearContainerBlockContents(position);
     }

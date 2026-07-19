@@ -153,6 +153,38 @@ public interface World extends Extent {
     int getBlockLightLevel(Vector position);
 
     /**
+     * Get the emitted block light level at the given block.
+     *
+     * @param position the position
+     * @return the emitted block light level (0-15)
+     */
+    int getEmittedLightLevel(Vector position);
+
+    /**
+     * Get the sky light level at the given block.
+     *
+     * @param position the position
+     * @return the sky light level (0-15)
+     */
+    int getSkyLightLevel(Vector position);
+
+    /**
+     * Set the emitted block light level at the given block.
+     *
+     * @param position the position
+     * @param level    the new light level (0-15)
+     */
+    void setEmittedLightLevel(Vector position, int level);
+
+    /**
+     * Set the sky light level at the given block.
+     *
+     * @param position the position
+     * @param level    the new light level (0-15)
+     */
+    void setSkyLightLevel(Vector position, int level);
+
+    /**
      * Clear a chest's contents.
      *
      * @param position the position

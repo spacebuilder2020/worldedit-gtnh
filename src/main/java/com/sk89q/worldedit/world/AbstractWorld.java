@@ -179,6 +179,22 @@ public abstract class AbstractWorld implements World {
     public void fixLighting(Iterable<BlockVector2D> chunks) {}
 
     @Override
+    public int getEmittedLightLevel(Vector position) {
+        return 0;
+    }
+
+    @Override
+    public int getSkyLightLevel(Vector position) {
+        return 0;
+    }
+
+    @Override
+    public void setEmittedLightLevel(Vector position, int level) {}
+
+    @Override
+    public void setSkyLightLevel(Vector position, int level) {}
+
+    @Override
     public boolean playEffect(Vector position, int type, int data) {
         return false;
     }

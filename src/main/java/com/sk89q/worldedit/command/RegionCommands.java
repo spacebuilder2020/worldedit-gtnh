@@ -26,13 +26,17 @@ import static com.sk89q.worldedit.regions.Regions.minimumBlockY;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.Logging;
+import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.Vector2D;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
@@ -64,6 +68,8 @@ import com.sk89q.worldedit.util.command.binding.Range;
 import com.sk89q.worldedit.util.command.binding.Switch;
 import com.sk89q.worldedit.util.command.binding.Text;
 import com.sk89q.worldedit.util.command.parametric.Optional;
+import com.sk89q.worldedit.util.lighting.LightingScheduler;
+import com.sk89q.worldedit.world.World;
 
 /**
  * Commands that operate on regions.
@@ -440,6 +446,135 @@ public class RegionCommands {
         Operations.completeLegacy(visitor);
 
         player.print(ground.getAffected() + " flora created.");
+    }
+
+    @Command(
+        aliases = { "/fixlighting" },
+        usage = "",
+        desc = "Fix lighting in a region or around you",
+        min = 0,
+        max = 0)
+    @CommandPermissions("worldedit.light.fix")
+    @Logging(REGION)
+    public void fixLighting(Player player, LocalSession session, EditSession editSession) throws WorldEditException {
+        World world = player.getWorld();
+        Region region;
+        try {
+            region = session.getSelection(world);
+        } catch (IncompleteRegionException e) {
+            Vector pos = player.getPosition();
+            int cx = pos.getBlockX() >> 4;
+            int cz = pos.getBlockZ() >> 4;
+            Vector min = new Vector((cx - 8) * 16, 0, (cz - 8) * 16);
+            Vector max = new Vector((cx + 8) * 16 + 15, world.getMaxY(), (cz + 8) * 16 + 15);
+            region = new CuboidRegion(world, min, max);
+        }
+
+        Set<Vector2D> chunkVectors = region.getChunks();
+        List<BlockVector2D> chunks = new ArrayList<BlockVector2D>(chunkVectors.size());
+        for (Vector2D vector : chunkVectors) {
+            chunks.add(new BlockVector2D(vector));
+        }
+
+        LightingScheduler scheduler = WorldEdit.getInstance()
+            .getLightingScheduler();
+        boolean scheduled = scheduler.schedule(world, chunks, player, new Runnable() {
+
+            @Override
+            public void run() {
+                player.print("Lighting Fixed. You may need to reload chunks.");
+            }
+        });
+
+        if (!scheduled) {
+            player.print("A lighting fix is already running. Please wait for it to finish.");
+            return;
+        }
+
+        if (!chunks.isEmpty()) {
+            player.print(chunks.size() + " chunk(s) queued for relight.");
+        }
+    }
+
+    @Command(
+        aliases = { "/getlighting" },
+        usage = "",
+        desc = "Get the emitted and sky light at your position",
+        min = 0,
+        max = 0)
+    @CommandPermissions("worldedit.light.fix")
+    public void getLighting(Player player) {
+        Vector pos = player.getPosition();
+        World world = player.getWorld();
+        int block = world.getEmittedLightLevel(pos);
+        int sky = world.getSkyLightLevel(pos);
+        player.print("Light: " + block + " | " + sky);
+    }
+
+    @Command(
+        aliases = { "/removelight", "/removelighting" },
+        usage = "",
+        desc = "Remove lighting in a region or around you",
+        min = 0,
+        max = 0)
+    @CommandPermissions("worldedit.light.remove")
+    @Logging(REGION)
+    public void removeLighting(Player player, LocalSession session, EditSession editSession) throws WorldEditException {
+        World world = player.getWorld();
+        Region region;
+        try {
+            region = session.getSelection(world);
+        } catch (IncompleteRegionException e) {
+            Vector pos = player.getPosition();
+            int cx = pos.getBlockX() >> 4;
+            int cz = pos.getBlockZ() >> 4;
+            Vector min = new Vector((cx - 8) * 16, 0, (cz - 8) * 16);
+            Vector max = new Vector((cx + 8) * 16 + 15, world.getMaxY(), (cz + 8) * 16 + 15);
+            region = new CuboidRegion(world, min, max);
+        }
+
+        Set<Vector2D> chunkVectors = region.getChunks();
+        for (Vector pt : region) {
+            world.setEmittedLightLevel(pt, 0);
+            world.setSkyLightLevel(pt, 0);
+        }
+        player.print(chunkVectors.size() + " chunk(s) updated.");
+    }
+
+    @Command(
+        aliases = { "/setblocklight", "/setlight" },
+        usage = "<level>",
+        desc = "Set block lighting in a selection",
+        min = 1,
+        max = 1)
+    @CommandPermissions("worldedit.light.set")
+    @Logging(REGION)
+    public void setBlockLight(Player player, EditSession editSession, @Selection Region region,
+        @Range(min = 0, max = 15) int level) {
+        World world = player.getWorld();
+        Set<Vector2D> chunkVectors = region.getChunks();
+        for (Vector pt : region) {
+            world.setEmittedLightLevel(pt, level);
+        }
+        player.print(chunkVectors.size() + " chunk(s) updated.");
+    }
+
+    @Command(
+        aliases = { "/setskylight" },
+        usage = "<level>",
+        desc = "Set sky lighting in a selection",
+        min = 1,
+        max = 1)
+    @CommandPermissions("worldedit.light.set")
+    @Logging(REGION)
+    public void setSkyLight(Player player, EditSession editSession, @Selection Region region,
+        @Range(min = 0, max = 15) int level) {
+        World world = player.getWorld();
+        Set<Vector2D> chunkVectors = region.getChunks();
+        for (Vector pt : region) {
+            world.setSkyLightLevel(pt, level);
+        }
+        player.print(chunkVectors.size() + " chunk(s) updated.");
     }
 
 }
